@@ -14,6 +14,7 @@ var LeapEx = {
   started: false,
 
   init: function(el, debugEl) {
+
     LeapEx.el = $(el);
     LeapEx.debugEl = $(debugEl);
 
@@ -28,6 +29,23 @@ var LeapEx = {
     $(el).attr('width', w).css('width', w).attr('height', h).css('height', h);
     $(el).css('position', 'absolute').css('left', '0').css('top', '0');
 
+      var pic = gs.Image.all[2];
+      var im = pic.image.offset();
+      console.log(im);
+      var x1 = im.left;
+      var y1 = im.top;
+      var locX = im.left;
+      var locY = im.top;
+      var imW = pic.image.width();
+      var imH = pic.image.height();
+      var x2 = x1 + pic.image.width();
+      var y2 = y1 + pic.image.height();
+      var xCenter = (x1 + x2)/2;
+      var yCenter = (y1 + y2)/2;
+      console.log(gs.Image.all[2].image);
+      var imW = gs.Image.all[2].image.width();
+      var imH = gs.Image.all[2].image.height();
+      var matches = 0;
     LeapEx.ctx = $(el)[0].getContext("2d");
     LeapEx.ws = new WebSocket("ws://localhost:6437/");
 
@@ -43,8 +61,11 @@ var LeapEx = {
     LeapEx.ws.onerror = function(event) {
       LeapEx.debug("Received error");
     };
+    
+    var hovering = false;
 
     LeapEx.ws.onmessage = function(event) {
+
       if (LeapEx.started) {
         var obj = JSON.parse(event.data);
         var str = JSON.stringify(obj, undefined, 2);
@@ -64,17 +85,71 @@ var LeapEx = {
             targets.push({ 'x': x, 'y': y, 'z': z });
           }
 
+          LX = LeapEx.scale(obj.hands[0].palmPosition[0], LeapEx.leapMinX, LeapEx.leapMaxX, -100, LeapEx.width);
+          LY = LeapEx.scale(obj.hands[0].palmPosition[1], LeapEx.leapMinY, LeapEx.leapMaxY, LeapEx.height, -100);
           LeapEx.draw(targets);
+          LX = LX - 200;
+          LY = LY - 200;
+
+         console.log('Pointing Coords: ' + LX + ', ' + LY);
+         gs.Image.all[2].setupCanvas();
+         var width = gs.Image.all[2].width;
+         var height = gs.Image.all[2].height;
+
+         //If one finger, move left half of image
+         if(obj.pointables.length == 1 && obj.hands.length == 1) {
+            hovering = true;
+            if(LX >= x1 && LX <= (x1+width) && LY >= y1 && LY <= (y2+height)) {
+              console.log('INTERSECTION');
+           }
+            gs.Image.all[2].place(LX, LY);
+            if(!gs.Image.all[2].wrapper.hasClass("ui-selected")) {
+            gs.Image.all[2].wrapper.addClass("ui-selected");
+            gs.Image.all[2].parent.select(gs.Image.all[2]);
+           }
+          } else if(obj.pointables.length >= 6 && obj.hands.length == 2) {
+              hovering = true;
+              gs.Image.all[1].place(LX, LY);
+              if(!gs.Image.all[1].wrapper.hasClass("ui-selected")) {
+              gs.Image.all[1].wrapper.addClass("ui-selected");
+              gs.Image.all[1].parent.select(gs.Image.all[2]);
+             }
+          }
+          else if(obj.pointables.length == 0 && obj.hands.length == 2 && matches == 0) {
+            gs.Image.all[2].match(gs.Image.all[1]);
+            matches = matches + 1;
+          }
+          else{
+            if(gs.Image.all[1].wrapper.hasClass("ui-selected")) {
+            //gs.Image.all[1].wrapper.removeClass("ui-selected");
+            //gs.Image.all[1].parent.deselect(gs.Image.all[1]);
+           }
+          }
+        
         }
       }
     };
 
-    $(document.body).click(function() {
-      LeapEx.toggle();
-    });
+    // $(document.body).click(function() {
+    //   LeapEx.toggle();
+    // });
 
     LeapEx.started = true;
     return LeapEx.el;
+  },
+
+  findPos: function (obj){
+  var curleft = 0;
+  var curtop = 0;
+
+  if (obj.offsetParent) {
+      do {
+          curleft += obj.offsetLeft;
+          curtop += obj.offsetTop;
+         } while (obj = obj.offsetParent);
+
+      return {X:curleft,Y:curtop};
+    }
   },
 
   draw: function(targets) {
@@ -84,10 +159,15 @@ var LeapEx = {
       var target = targets[i];
       LeapEx.ctx.arc(LeapEx.scale(target.x, LeapEx.leapMinX, LeapEx.leapMaxX, -100, LeapEx.width),
                      LeapEx.scale(target.y, LeapEx.leapMinY, LeapEx.leapMaxY, LeapEx.height, -100),
-                     target.z, 0, Math.PI*2, true);
+                     10, 0, Math.PI*2, true);
       LeapEx.ctx.closePath();
+      LeapEx.ctx.fillStyle = "#008000";
       LeapEx.ctx.fill();
     }
+  },
+
+  intersects: function(images) {
+    console.log(images);
   },
 
   scale: function(value, oldMin, oldMax, newMin, newMax) {

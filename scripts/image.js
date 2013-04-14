@@ -245,6 +245,16 @@
       return [[this.image.style.left, this.image.style.top], [this.image.style.left + this.pixels.cols, this.image.style.top], [this.image.style.left, this.image.style.top + this.pixels.rows], [this.image.style.left + this.pixels.cols, this.image.style.top + this.pixels.rows]];
     };
 
+    Image.prototype.width = function() {
+      var w = this.image.width;
+      return w;
+    }
+
+    Image.prototype.height = function() {
+      var h = this.image.height;
+      return h;
+    }
+
     Image.prototype.place = function(x, y) {
       return this.wrapper.css({
         position: "absolute",
@@ -283,6 +293,7 @@
         this.wrapper.addClass("ui-selected");
         return this.parent.select(this);
       }
+        return this.parent.select(this);
     };
 
     return Image;
