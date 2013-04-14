@@ -22,15 +22,20 @@
       </script>
   </head>
   <body>
-        <h1>
+
+
+    <div class="container">
+
+        <center><h1>
             Gesture-Initiated Image Stitcher
         </h1>
-        <ul id="commands">
+        <!-- <ul id="commands">
             <li id="button-match"> Match </li>
             <li id="status"></li>
-        </ul>
+        </ul> -->
         <div id='desktop'>
         </div>
+      </div>
         <ul id='image_menu'>
             <!--
                 This is the context menu for images
@@ -40,10 +45,12 @@
             <li><a href="#">Features</a></li>
             <li><a href="#">Delete</a></li>
         </ul>
+        <br></br>
     <table id='statistics'>
         <th><td>Point 1.x</td><td>Point 1.y</td><td>Point 2.x</td><td>Point 1.y</td><td>SSE</td></th>
     </tabne>
     <div id="debug">WebSocket not connected</div>
+</center>
   <canvas id="canvas"></canvas>
     </body>
 

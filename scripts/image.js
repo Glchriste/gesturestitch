@@ -263,6 +263,15 @@
       });
     };
 
+    Image.prototype.animatePlace = function(x, y) {
+      return this.wrapper.animate({position : "absolute", left: (x - 500), top: y}, "slow");
+      // return this.wrapper.css({
+      //   position: "absolute",
+      //   left: x,
+      //   top: y
+      // });
+    };
+
     Image.prototype.spin = function(degrees) {
       var renderer, _i, _len, _ref, _results;
       _ref = ['Webkit', 'Moz', 'O', 'MS', ''];
@@ -281,7 +290,7 @@
       y_limit = this.parent.height - (this.wrapper.height() * 1.4);
       x = Math.floor(Math.random() * x_limit);
       y = Math.floor(Math.random() * y_limit);
-      this.place(x, y);
+      this.animatePlace(x, y);
       return this.spin(degrees);
     };
 

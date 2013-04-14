@@ -20,7 +20,8 @@
       this.ubox = this.box[0];
       this.width = this.box.width();
       this.height = this.box.height();
-      this.processImageList(['images/jumping.jpg', 'images/jumping_dad.jpg', 'images/jumping_kid.jpg', 'images/tigers.jpg', 'images/yard-left.jpg', 'images/yard-right.jpg']);
+      //, 'images/tigers.jpg', 'images/yard-left.jpg', 'images/yard-right.jpg'
+      this.processImageList(['images/tigers.jpg', 'images/jumping_dad.jpg', 'images/jumping_kid.jpg']);
       $("#button-match").click(this.match.bind(this));
       this.selected_images = [];
     }
