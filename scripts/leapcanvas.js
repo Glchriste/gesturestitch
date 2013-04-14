@@ -125,7 +125,9 @@ var LeapEx = {
             gs.Image.all[1].wrapper.addClass("ui-selected");
             gs.Image.all[1].parent.select(gs.Image.all[1]);
            }
-          } else if(obj.pointables.length <= 6 && obj.pointables.length > 4 && obj.hands.length == 2) {
+          }
+          //If Two hands and index finger pointing with left hand open, move right half of image.
+          else if(obj.pointables.length <= 6 && obj.pointables.length > 4 && obj.hands.length == 2) {
               gs.Image.all[2].place(LX, LY);
               locX = Math.abs(LX);
               locY = Math.abs(LY);
@@ -138,10 +140,18 @@ var LeapEx = {
               gs.Image.all[2].parent.select(gs.Image.all[1]);
              }
           }
+          //Merge gesture. Two fists.
           else if(obj.pointables.length == 0 && obj.hands.length == 2 && matches == 0) {
-            var match = gs.ImageDisplay.match();
-            console.log(match);
+            var matchset = gs.Image.all[2].match(gs.Image.all[1]);
+            var translation = gs.Image.all[2].estimateTranslation(matchset);
+            console.log(translation);
+            var merged = gs.Image.all[1].overlay(gs.Image.all[2], new gs.Transform().translate(translation));
+            console.log(merged);
             matches = matches + 1;
+            gs.Image.all[1].wrapper.removeClass("ui-selected");
+            gs.Image.all[1].parent.deselect(gs.Image.all[1]);
+            gs.Image.all[2].wrapper.removeClass("ui-selected");
+            gs.Image.all[2].parent.deselect(gs.Image.all[2]);
           }
           else{
             if(gs.Image.all[1].wrapper.hasClass("ui-selected")) {
