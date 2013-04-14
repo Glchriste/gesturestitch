@@ -29,23 +29,32 @@ var LeapEx = {
     $(el).attr('width', w).css('width', w).attr('height', h).css('height', h);
     $(el).css('position', 'absolute').css('left', '0').css('top', '0');
 
-      var pic = gs.Image.all[2];
+      var pic = gs.Image.all[1];
       var im = pic.image.offset();
       console.log(im);
       var x1 = im.left;
       var y1 = im.top;
-      var locX = im.left;
-      var locY = im.top;
-      var imW = pic.image.width();
-      var imH = pic.image.height();
-      var x2 = x1 + pic.image.width();
-      var y2 = y1 + pic.image.height();
+      var startX = im.left;
+      var startY = im.top;
+      var imW = gs.Image.all[1].image.width();
+      var imH = gs.Image.all[1].image.height();
+      var x2 = x1 + imW;
+      var y2 = y1 + imH;
       var xCenter = (x1 + x2)/2;
       var yCenter = (y1 + y2)/2;
-      console.log(gs.Image.all[2].image);
-      var imW = gs.Image.all[2].image.width();
-      var imH = gs.Image.all[2].image.height();
       var matches = 0;
+      var pic_2 = gs.Image.all[1];
+      var im_2 = pic_2.image.offset();
+      var x1_2 = im.left;
+      var y1_2 = im.top;
+      var startX_2 = im.left;
+      var startY_2 = im.top;
+      var x2_2 = x1 + pic_2.image.width();
+      var y2_2 = y1 + pic_2.image.height();
+      var xCenter_2 = (x1 + x2)/2;
+      var yCenter_2 = (y1 + y2)/2;
+      var imW_2 = gs.Image.all[2].image.width();
+      var imH_2 = gs.Image.all[2].image.height();
     LeapEx.ctx = $(el)[0].getContext("2d");
     LeapEx.ws = new WebSocket("ws://localhost:6437/");
 
@@ -63,7 +72,9 @@ var LeapEx = {
     };
     
     var hovering = false;
-
+    var offset = gs.Image.all[1].image.offset();
+    offset.left = startX;
+    offset.top = startY;
     LeapEx.ws.onmessage = function(event) {
 
       if (LeapEx.started) {
@@ -91,8 +102,9 @@ var LeapEx = {
           LX = LX - 200;
           LY = LY - 200;
 
-         console.log('Pointing Coords: ' + LX + ', ' + LY);
+         //console.log('Pointing Coords: ' + LX + ', ' + LY);
          gs.Image.all[2].setupCanvas();
+         gs.Image.all[1].setupCanvas();
          var width = gs.Image.all[2].width;
          var height = gs.Image.all[2].height;
 
@@ -102,25 +114,38 @@ var LeapEx = {
             if(LX >= x1 && LX <= (x1+width) && LY >= y1 && LY <= (y2+height)) {
               console.log('INTERSECTION');
            }
-            gs.Image.all[2].place(LX, LY);
-            if(!gs.Image.all[2].wrapper.hasClass("ui-selected")) {
-            gs.Image.all[2].wrapper.addClass("ui-selected");
-            gs.Image.all[2].parent.select(gs.Image.all[2]);
+            gs.Image.all[1].place(LX, LY);
+            locX = Math.abs(LX);
+            locY = Math.abs(LY);
+            offset.left = locX;
+            offset.top = locY;
+            gs.Image.all[1].image.offset = offset;
+            //console.log(gs.Image.all[1].image.offset.left + ', ' + offset.top);
+            if(!gs.Image.all[1].wrapper.hasClass("ui-selected")) {
+            gs.Image.all[1].wrapper.addClass("ui-selected");
+            gs.Image.all[1].parent.select(gs.Image.all[1]);
            }
-          } else if(obj.pointables.length >= 6 && obj.hands.length == 2) {
-              hovering = true;
-              gs.Image.all[1].place(LX, LY);
-              if(!gs.Image.all[1].wrapper.hasClass("ui-selected")) {
-              gs.Image.all[1].wrapper.addClass("ui-selected");
-              gs.Image.all[1].parent.select(gs.Image.all[2]);
+          } else if(obj.pointables.length <= 6 && obj.pointables.length > 4 && obj.hands.length == 2) {
+              gs.Image.all[2].place(LX, LY);
+              locX = Math.abs(LX);
+              locY = Math.abs(LY);
+              offset.left = locX;
+              offset.top = locY;
+              gs.Image.all[2].image.offset = offset;
+              //console.log(gs.Image.all[2].image.offset.left + ', ' + offset.top);
+              if(!gs.Image.all[2].wrapper.hasClass("ui-selected")) {
+              gs.Image.all[2].wrapper.addClass("ui-selected");
+              gs.Image.all[2].parent.select(gs.Image.all[1]);
              }
           }
           else if(obj.pointables.length == 0 && obj.hands.length == 2 && matches == 0) {
-            gs.Image.all[2].match(gs.Image.all[1]);
+            var match = gs.ImageDisplay.match();
+            console.log(match);
             matches = matches + 1;
           }
           else{
             if(gs.Image.all[1].wrapper.hasClass("ui-selected")) {
+              hovering = false;
             //gs.Image.all[1].wrapper.removeClass("ui-selected");
             //gs.Image.all[1].parent.deselect(gs.Image.all[1]);
            }
